@@ -1,6 +1,7 @@
-#include "tokenizer.h"
 #include <stdio.h>
 #include <ctype.h>
+
+#include "tokenizer.h"
 
 charvec* tokenize(char *line, size_t length)
 {

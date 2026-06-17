@@ -1,5 +1,7 @@
 #include <string.h>
 #include <limits.h>
+#include <stdio.h>
+
 #include "env.h"
 
 charvec* load_path(void)
@@ -30,4 +32,18 @@ charvec* load_path(void)
     }
 
     return path_vector;
+}
+
+char* get_home(void)
+{
+    char* home = getenv("HOME");
+    if (home == NULL)
+        home = getenv("USERPROFILE");
+    if (home == NULL)
+    {
+        printf("Neither $HOME or %%USERPROFILE%% are set.\n");
+        return NULL;
+    }
+
+    return home;
 }

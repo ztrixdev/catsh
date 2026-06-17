@@ -1,4 +1,5 @@
 #include <stddef.h>
+
 #include "../models/charvec/charvec.h"
 
 #ifndef TOKENIZER_H

@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <string.h>
 
+#include "conf/catsh_conf.h"
 #include "tokenizer/tokenizer.h"
 #include "env/env.h"
 
@@ -14,10 +15,12 @@ bool terminated = false;
 int main(int argc, char **argv)
 {
     charvec* PATH = load_path();
+    catsh_config cnf = load_catsh_config();
 
+    chdir(cnf.default_working_dir);
     while (!terminated)
     {
-        printf("ᓚᘏᗢ > ");
+        printf("%s > ", cnf.cat);
 
         char *line = malloc(256 * sizeof(char));
         fgets(line, 256 * sizeof(char), stdin);
