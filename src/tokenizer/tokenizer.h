@@ -1,6 +1,6 @@
 #include <stddef.h>
 
-#include "../models/charvec/charvec.h"
+#include "../containers/charvec/charvec.h"
 
 #ifndef TOKENIZER_H
 #define TOKENIZER_H

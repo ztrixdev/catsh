@@ -4,9 +4,11 @@
 #include <limits.h>
 #include <string.h>
 #include <strings.h>
+#include <unistd.h>
 
 #include "catsh_conf.h"
 #include "../env/env.h"
+
 
 char* get_catsh_config_path(void)
 {
@@ -15,9 +17,15 @@ char* get_catsh_config_path(void)
         return NULL;
 
     char *path = malloc(PATH_MAX);
-    snprintf(path, PATH_MAX, "%s/.catsh.conf", home);
+    snprintf(path, PATH_MAX, "%s/%s", home, CONFIG_FILENAME);
 
     return path;
+}
+
+bool catsh_config_file_exists(void)
+{
+    char *path = get_catsh_config_path();
+    return access(path, F_OK) == 0;
 }
 
 void init_catsh_config(void)
