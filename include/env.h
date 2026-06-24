@@ -1,7 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "../containers/charvec/charvec.h"
+#include "charvec.h"
 
 #ifndef ENV_H
 #define ENV_H

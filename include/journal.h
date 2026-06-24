@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../containers/charvec/charvec.h"
+#include "charvec.h"
 
 #ifndef JOURNAL_H
 #define JOURNAL_H

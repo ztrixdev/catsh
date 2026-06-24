@@ -2,6 +2,7 @@
 #include <limits.h>
 #include <stdio.h>
 
+#include "charvec.h"
 #include "env.h"
 
 charvec* load_path(void)

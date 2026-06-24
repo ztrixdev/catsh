@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 #include "catsh_conf.h"
-#include "../env/env.h"
+#include "env.h"
 
 
 char* get_catsh_config_path(void)

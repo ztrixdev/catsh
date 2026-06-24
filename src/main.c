@@ -6,15 +6,18 @@
 #include <string.h>
 #include <sys/wait.h>
 
-#include "config/catsh_conf.h"
-#include "terminal/terminal.h"
-#include "journal/journal.h"
-#include "tokenizer/tokenizer.h"
-#include "env/env.h"
+#include "catsh_conf.h"
+#include "str_consts.h"
+#include "terminal.h"
+#include "journal.h"
+#include "tokenizer.h"
+#include "env.h"
 
 bool terminated = 0;
 
 void process_line(charvec* journal, char* line);
+void execute_piped(charvec* cmd1, charvec* cmd2);
+void execute_standalone(charvec* cmd);
 
 int main(int argc, char** argv)
 {
@@ -152,32 +155,94 @@ void process_line(charvec* journal, char* line)
 
     append_to_journal(journal, line);
 
-    charvec* tokens = tokenize(line,strlen(line));
-    if (strcmp(charvec_get(tokens, 0), "exit") == 0)
+    size_t n_cmd = 0;
+    charvec** commands = parse_commands(line, strlen(line), &n_cmd);
+
+    if (n_cmd == 0) return;
+    else if (n_cmd == 1) execute_standalone(commands[0]);
+    else if (n_cmd > 1)
     {
-        puts("it was nice meowing with you!");
-        terminated = true;
-        return;
+        for (size_t idx = 0; commands[idx] != NULL; idx++)
+        {
+            char* cmd = charvec_get(commands[idx], 0);
+            if (strcmp(cmd, PIPE_TO_STR) == 0)
+            {
+                if (commands[idx-1] != NULL && commands[idx+1] != NULL
+                    && charvec_length(commands[idx-1]) >= 1 && charvec_length(commands[idx+1]) >= 1 )
+                {
+                    execute_piped(commands[idx-1], commands[idx+1]);
+                }
+            }
+        }
     }
 
-    char** ptr = charvec_get_nterm_dataptr(tokens);
+    free_commands(commands);
+    free(line);
+}
+
+
+void execute_piped(charvec* cmd1, charvec* cmd2)
+{
+    int fd[2];
+
+    if (pipe(fd) == -1) {
+        perror("pipe");
+        exit(EXIT_FAILURE);
+    }
+
+    pid_t p1 = fork();
+
+    if (p1 == 0) {
+        close(fd[0]);
+
+        dup2(fd[1], STDOUT_FILENO);
+        close(fd[1]);
+
+        char **args = charvec_get_nterm_dataptr(cmd1);
+        execvp(charvec_get(cmd1,0), args);
+
+        perror("execvp");
+        exit(EXIT_FAILURE);
+    }
+
+    pid_t p2 = fork();
+    if (p2 == 0) {
+        close(fd[1]);
+
+        dup2(fd[0], STDIN_FILENO);
+        close(fd[0]);
+
+        char **args = charvec_get_nterm_dataptr(cmd2);
+        execvp(charvec_get(cmd2,0), args);
+
+        perror("execvp");
+        exit(EXIT_FAILURE);
+    }
+
+    close(fd[0]);
+    close(fd[1]);
+
+    waitpid(p1, NULL, 0);
+    waitpid(p2, NULL, 0);
+}
+
+void execute_standalone(charvec* cmd)
+{
+    char** ptr = charvec_get_nterm_dataptr(cmd);
     pid_t pid = fork();
     if (pid == 0)
     {
-        execvp(charvec_get(tokens, 0), ptr);
-        execv(charvec_get(tokens, 0), ptr);
+        execvp(charvec_get(cmd, 0), ptr);
 
-        perror("catsh execution failed");
+        perror("execvp");
         exit(EXIT_FAILURE);
     }
     else if (pid > 0)
     {
-        waitpid(pid, NULL, 0); // wait for the child process to exit
+        waitpid(pid, NULL, 0);
     }
     else
     {
         perror("error in fork call");
     }
-
-    free(line);
 }

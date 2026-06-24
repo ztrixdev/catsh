@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "charvec.h"
+#include "str_consts.h"
 
 typedef struct charvec
 {
@@ -77,6 +78,19 @@ char* charvec_get(charvec* target, size_t idx)
 void charvec_remove(charvec* target, char* value)
 {
 //todo
+}
+
+void charvec_free(charvec *target)
+{
+    for (size_t idx = 0; idx < target->len; idx++)
+    {
+        if (strcmp(target->data[idx], PIPE_TO_STR) != 0 &&
+            strcmp(target->data[idx], REDIRECT_APPEND_STR) != 0 &&
+            strcmp(target->data[idx], REDIRECT_OVERWRITE_STR) != 0)
+            free(target->data[idx]);
+    }
+    free(target->data);
+    free(target);
 }
 
 char** charvec_get_nterm_dataptr(charvec* target)

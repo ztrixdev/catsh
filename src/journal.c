@@ -5,7 +5,7 @@
 #include <unistd.h>
 
 #include "journal.h"
-#include "../env/env.h"
+#include "env.h"
 
 
 char* get_journal_path(void)

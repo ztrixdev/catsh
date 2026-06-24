@@ -24,6 +24,8 @@ char* charvec_get(charvec* target, size_t idx);
 char** charvec_get_nterm_dataptr(charvec* target);
 // removes value from target
 void charvec_remove(charvec* target, char* value);
+// frees every pointer inside and the pointer to cv
+void charvec_free(charvec* target);
 // returns the length (total amount of elements inside) of a dynamic array
 size_t charvec_length(charvec* target);
 
